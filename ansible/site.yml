@@ -1,0 +1,55 @@
+---
+
+- hosts: all
+
+  vars:
+    server_name: montel.fi
+    upstream_server: http://127.0.0.1:8080
+    webhooker_user: root
+    webhooker_group: root
+    webhooker_working_dir: /root/
+    webhooker_config_file: files/webhooker.tt.config
+
+  roles:
+    - montel.webhooker
+    - montel.docker
+
+  tasks:
+    - name: Copy site updating script
+      template:
+        src: files/update-techtest_journey_python.sh
+        dest: /root/update-techtest_journey_python.sh
+        mode: 0744
+
+    - name: Get the code for the site
+      git:
+        repo: https://github.com/montel-ig/techtest_journey_python.git
+        dest: /root/techtest_journey_python
+        accept_hostkey: yes
+
+    - name: create systemd service
+      become: true
+      template:
+        src: files/techtest_journey_python.service
+        dest: /etc/systemd/system/techtest_journey_python.service
+      notify:
+        - reload changes
+        - restart techtest
+
+    - name: enable
+      become: true
+      systemd:
+        name: techtest_journey_python
+        enabled: yes
+
+    - name: start
+      become: true
+      systemd:
+        name: techtest_journey_python
+        state: started
+
+  # this is lacking switching to python3 as default and installing pip and
+  # making it default too (ln -s /usr/bin/...)
+  handlers:
+    - name: restart techtest
+      service: name=techtest_journey_python state=restarted

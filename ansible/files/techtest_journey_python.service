@@ -1,0 +1,18 @@
+[Unit]
+Description=tech test journey python
+After=syslog.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/root/techtest_journey_python/
+Environment="LC_ALL=C.UTF-8"
+Environment="LANG=C.UTF-8"
+Environment="DATA_FILE=/root/other_planets.json"
+ExecStart=/root/techtest_journey_python/start_server.sh
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

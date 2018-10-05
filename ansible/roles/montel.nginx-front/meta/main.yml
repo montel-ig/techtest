@@ -1,0 +1,3 @@
+---
+dependencies:
+  - { role: gronke.dhparam, become: yes, dhparam_size: 2048, dhparam_file: /etc/ssl/dhparam.pem }

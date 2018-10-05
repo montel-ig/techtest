@@ -1,0 +1,45 @@
+---
+# installs latest nginx
+
+- name: Copy nginx official source repository
+  become: yes
+  copy:
+    src: files/nginx.list
+    dest: /etc/apt/sources.list.d/nginx.list
+
+- name: Add nginx repo key
+  become: yes
+  apt_key:
+    keyserver: "{{nginx_front_keyserver}}"
+    id: "{{nginx_front_key_id}}"
+
+- name: Update and install nginx
+  become: yes
+  apt:
+    name: nginx
+    update_cache: yes
+
+- name: SSL config
+  become: yes
+  copy:
+    src: files/ssl.conf
+    dest: /etc/nginx/ssl.conf
+
+- name: Remove the default site
+  become: yes
+  file:
+    path: /etc/nginx/conf.d/default.conf
+    state: absent
+
+- name: Add the default 444 returning server
+  become: yes
+  template:
+    src: files/nginx.conf.j2
+    dest: /etc/nginx/conf.d/default.conf
+
+- name: Run nginx
+  become: yes
+  service:
+    name: nginx
+    state: started
+

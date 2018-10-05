@@ -1,0 +1,44 @@
+---
+
+# only runs with ubuntu/debian for now (tested on 16.04)
+
+- name: get webhooker script
+  get_url:
+    url: https://gist.githubusercontent.com/luopio/cce6b813ecb5b64bfe526ee266e185cc/raw/f0ba891fb95ba4c5c74029450347f3e5ebde3761/webhooker.py
+    dest: "{{webhooker_working_dir}}/webhooker.py"
+  notify:
+    - restart webhooker
+
+- name: change file permissions
+  file:
+    path: "{{webhooker_working_dir}}/webhooker.py"
+    mode: 0744
+
+- name: copy default webhooker config
+  copy: src={{webhooker_config_file}} dest={{webhooker_working_dir}}/webhooker.config
+  when: webhooker_config_file is undefined
+
+- name: copy custom webhooker config
+  copy: src={{webhooker_config_file}} dest={{webhooker_working_dir}}/webhooker.config
+  when: webhooker_config_file is defined
+
+- name: create webhooker systemd service
+  become: true
+  template:
+    src: files/webhooker.service.j2
+    dest: /etc/systemd/system/webhooker.service
+  notify:
+    - reload changes
+    - restart webhooker
+
+- name: enable webhooker
+  become: true
+  systemd:
+    name: webhooker
+    enabled: yes
+
+- name: start webhooker
+  become: true
+  systemd:
+    name: webhooker
+    state: started

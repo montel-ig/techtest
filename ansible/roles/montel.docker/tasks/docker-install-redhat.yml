@@ -1,0 +1,27 @@
+---
+# Centos specific parts of docker install
+
+- name: 'Enforce Docker package requirements'
+  yum:
+    name: '{{ item.name }}'
+    state: '{{ item.state }}'
+  with_items: '{{ docker_package_prerequisites }}'
+
+- name: 'Add Docker repository GPG key'
+  rpm_key:
+    key: '{{ docker_redhat_repo_key }}'
+    state: present
+
+- name: 'Add Docker RedHat/CentOs repository'
+  get_url:
+    url: '{{ docker_redhat_repo_url }}'
+    dest: '/etc/yum.repos.d/docker-ce.repo'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: 'Install Docker'
+  package:
+    name: '{{ docker_redhat_package }}'
+    state: '{{ docker_redhat_package_state }}'
+

@@ -1,0 +1,40 @@
+---
+# tasks file for montel.docker
+# installs docker for the system
+
+- include_tasks: docker-install-redhat.yml
+  when: ansible_os_family == 'RedHat'
+
+- include_tasks: docker-install-debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: 'Start Docker and make it start when system boots'
+  become: yes
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Check current docker-compose version.
+  command: docker-compose --version
+  register: docker_compose_current_version
+  changed_when: false
+  failed_when: false
+  when: docker_install_compose is defined and docker_install_compose|bool
+
+- name: Delete existing docker-compose version if it's different.
+  become: yes
+  file:
+    path: "{{ docker_compose_path }}"
+    state: absent
+  when: >
+    docker_compose_current_version.stdout is defined
+    and docker_compose_version not in docker_compose_current_version.stdout
+
+- name: Install Docker Compose.
+  become: yes
+  get_url:
+    url: https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64
+    dest: "{{ docker_compose_path }}"
+    mode: 0755
+  when: docker_install_compose is defined and docker_install_compose|bool

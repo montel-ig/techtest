@@ -1,0 +1,36 @@
+---
+# Centos specific parts of docker install
+
+- name: 'Enforce Docker package requirements'
+  become: yes
+  apt:
+    name: '{{ item.name }}'
+    state: '{{ item.state }}'
+  with_items: '{{ docker_package_prerequisites }}'
+
+- name: Install https transport
+  become: yes
+  apt:
+    name: apt-transport-https
+    state: present
+
+- name: 'Add Docker repository GPG key'
+  become: yes
+  apt_key:
+    id: '{{ docker_debian_repo_key_id }}'
+    url: '{{ docker_debian_repo_key_url }}'
+    state: present
+
+- name: 'Add Docker repository'
+  become: yes
+  apt_repository:
+    repo: '{{ docker_debian_repo_url }}'
+    state: present
+
+- name: 'Install Docker'
+  become: yes
+  package:
+    name: '{{ docker_debian_package }}'
+    state: '{{ docker_debian_package_state }}'
+    update_cache: yes
+

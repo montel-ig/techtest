@@ -1,0 +1,6 @@
+---
+
+webhooker_user: ubuntu
+webhooker_group: ubuntu
+webhooker_working_dir: /home/ubuntu/
+# webhooker_config_file: /foo/fii  # define to configure webhooker

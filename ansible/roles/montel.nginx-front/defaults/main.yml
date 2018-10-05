@@ -1,0 +1,3 @@
+# probably more or less static:
+nginx_front_keyserver: keyserver.ubuntu.com
+nginx_front_key_id: ABF5BD827BD9BF62

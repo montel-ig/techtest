@@ -1,0 +1,7 @@
+---
+- name: restart webhooker
+  service: name=webhooker state=restarted
+
+- name: reload changes
+  systemd:
+    daemon_reload: yes

@@ -1,0 +1,6 @@
+# return 444 as default, only allow explicitly set hosts
+server {
+  listen 80;
+  server_name _ default;
+  return 444;
+}
