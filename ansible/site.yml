@@ -10,9 +10,9 @@
     webhooker_working_dir: /root/
     webhooker_config_file: files/webhooker.tt.config
 
-  roles:
-    - montel.webhooker
-    - montel.docker
+#  roles:
+#    - montel.webhooker
+#    - montel.docker
 
   tasks:
     - name: Copy site updating script
@@ -48,8 +48,46 @@
         name: techtest_journey_python
         state: started
 
+    - name: create folders for gitbox
+      file:
+        path: /root/gitbox/repos
+        state: directory
+
+    - name: create folders for gitbox
+      file:
+        path: /root/gitbox/ng-auth
+        state: directory
+
+    - name: copy htpasswd
+      copy:
+        src: files/htpasswd
+        dest: /root/gitbox/ng-auth/htpasswd
+
+    - name: install docker py
+      pip:
+        name: docker-py
+
+    - name: gitbox running through docker
+      become: true
+      docker_container:
+        name: gitbox
+        image: pvdlg/docker-gitbox
+        host: 94.237.48.28
+        ports:
+          - 8888:80
+        env:
+          FQDN: 94.237.48.28
+        volumes:
+          - /root/gitbox/repos:/repos
+          - /root/gitbox/ng-auth:/ng-auth
+
   # this is lacking switching to python3 as default and installing pip and
   # making it default too (ln -s /usr/bin/...)
+  # - also lacking: the gitbox needs a custom image with curl (+vim..) and
+  #   post-update hook calling the webhooker url and of course the repos
+  #   themselves with repo-admin -c foo -d foofoo
+
+
   handlers:
     - name: restart techtest
       service: name=techtest_journey_python state=restarted

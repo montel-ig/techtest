@@ -7,9 +7,8 @@ Type=simple
 User={{webhooker_user}}
 Group={{webhooker_group}}
 WorkingDirectory={{webhooker_working_dir}}
+Environment="PYTHONUNBUFFERED=1"
 ExecStart={{webhooker_working_dir}}webhooker.py --port=8997
-StandardOutput=syslog
-StandardError=syslog
 
 [Install]
 WantedBy=multi-user.target
